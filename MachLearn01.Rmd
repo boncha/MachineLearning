@@ -1,0 +1,79 @@
+---
+title: "Machine Learning Project"
+author: "GHK"
+date: "July 24, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive summary
+
+  In this project I explored different models to predict the way in which barbell lifts were being performed based on data from accelerometers. I was provided two datasets: "training" and "testing". To allow for cross-validation, I subdivided the original training set (70% **"training70"**, and 30% **"training30"**). I trained my models on the "training70" set and I cross-validated on the "training30" set.
+  Using the **caret** package in R, I explored 3 different models: random forest (**rf**), boosted trees (**gbm**), and linear discriminant analysis (**lda**). The model that had the best performance based on accuracy was the gbm. For this model, the in-sample and out of sample accuracy were similar (0.957, and 0.963, respectively). My expectation was for the in-sample accuracy to be higher.
+  When the gbm model was applied on the provided "**testing**" set, 20/20 predictions matched the instructors expectation.
+
+## Introduction
+
+The objective of this project was to build several models, and among them, report the best one in prediciting the way in which barbell lifts were being performed (encoded in the variable "**classe**") based on data from accelerometers. The data used for model tranining proceeded from < http://groupware.les.inf.puc-rio.br/har>.
+
+## Dataset
+
+The provided training set consisted on: 
+```
+rows: 19622
+columns: 160
+```
+
+## Data cleaning
+
+I performed data cleaning as indicated in the accompanying **Appendix**. Briefly, upon importing the data, I converted the "#DIV/0!" into "NA". I also removed the columns that contained >60% of NA values. Finally, the analyses below were based on data frames whose first 7 columns were removed, as they did not contain accelerometer data.
+
+```
+rows: 196222
+columns: 53
+```
+
+## Data splitting
+
+In order to allow for cross validation, I splitted the training set with 70% for training (**training70**) and 30% for cross-validation (**training30**). Throughout this analysis, the **seed** was set at "123457".
+
+```
+training70:
+rows: 13737
+columns: 53
+
+training30:
+rows: 5885
+columns: 53
+```
+
+## Model exploration
+I explored 3 different models: random forest (**rf**), boosted trees (**gbm**), and linear discriminant analysis (**lda**).
+All of the analyses were performed using the R package **caret**, as explained in the **Appendix**.
+
+During training, the models performed as follows:
+```
+Accuracy:
+
+rf: 0.504
+gbm: 0.957
+lda: 0.706
+```
+When the models were applied to the training30 set for cross-validation, their performance was:
+```
+Accuracy:
+
+rf: 0.489
+gbm: 0.963
+lda: 0.699
+```
+
+These results indicate that:
+1) gbm was the most accurate model;
+2) the gbm model had similar in-sample and out-of-sample error. I was expecting the in-sample error to be lower than the out-of sample model.
+
+## Prediction
+When the gbm model was applied to the testing set, consisting of 20 unknowns that had data for the same accelerometer variables as the training set, the prediction matched 20/20 cases with the instructors calls.

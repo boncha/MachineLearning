@@ -1,0 +1,60 @@
+---
+title: "Appendix for the report on the Machine Learning project"
+author: "GHK"
+date: "July 24, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+To allow for reproducible research, the code used for the reported analysis is reported below.
+```{r, echo=TRUE}
+library(caret)
+library(rattle)
+
+## Data loading:
+my_train<-read.csv("pml-training.csv",stringsAsFactors = F,na.strings = c("NA","#DIV/0!"))
+summary(my_train)
+## Data cleaining:
+## First I remove the variables that have >60% NAs
+my_train3<-my_train[,-c(12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,50,51,52,53,54,55,56,57,58,59,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,103,104,105,106,107,108,109,110,111,112,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,141,142,143,144,145,146,147,148,149,150)]
+
+
+## Data splitting:
+set.seed(123457)
+inTrain<-createDataPartition(y=my_train3$classe,p=0.7,list=F)
+training3<-my_train3[inTrain,]
+testing3<-my_train3[-inTrain,]
+training3a<-training3[,-c(1,2,3,4,5,6,7)]
+testing3a<-testing3[,-c(1,2,3,4,5,6,7)]
+
+## rf model:
+set.seed(123457)
+modFitRpart<-train(classe~., method="rpart",data=training3a)
+modFitRpart
+fancyRpartPlot(modFitRpart$finalModel)
+confusionMatrix(testing3a$classe,predict(modFitRpart,newdata = testing3a))
+
+## gbm model:
+set.seed(123457)
+modFit_GBM<-train(classe~.,method="gbm",data=training3a)
+modFit_GBM
+confusionMatrix(testing3a$classe,predict(modFit_GBM,newdata = testing3a))
+
+## lda model:
+set.seed(123457)
+modFit_LDA<-train(classe~.,method="lda",data=training3a)
+modFit_LDA
+confusionMatrix(testing3a$classe,predict(modFit_LDA,newdata = testing3a))
+
+## Prediction
+final_test<-read.csv("pml-testing.csv",stringsAsFactors = F,na.strings = c("NA","#DIV/0!"))
+final_test03<-final_test[,-c(12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,50,51,52,53,54,55,56,57,58,59,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,103,104,105,106,107,108,109,110,111,112,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,141,142,143,144,145,146,147,148,149,150)]
+final_test03a<-final_test03[,-c(1,2,3,4,5,6,7)]
+
+final_predict_GBM<-predict(modFit_GBM,newdata = final_test03a)
+my_final_prediction<-data.frame(final_test03a$problem_id,final_predict_GBM)
+my_final_prediction
+
+```
